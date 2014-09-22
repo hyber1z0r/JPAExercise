@@ -4,10 +4,10 @@ package model;
  * @author Lars
  */
 public class Person {
-  public String fName;
-  public String lName;
-  public String phone;
-  public int id;
+  String fName;
+  String lName;
+  String phone;
+  int id;
 
   public int getId() {
     return id;

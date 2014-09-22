@@ -5,12 +5,17 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import exceptions.NotFoundException;
+import facades.PersonFacade;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import model.Person;
 
 /**
  * @author Lars
@@ -26,10 +31,10 @@ public class RestCRUD {
   public void run() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(ip, port), 0);
     //REST Routes
-    
+    server.createContext("/person", new HandlerPerson());
     //HTTP Server Routes
     server.createContext(filesUri, new HandlerFileServer());
-       
+
     server.start();
     System.out.println("Server started, listening on port: " + port);
   }
@@ -42,7 +47,56 @@ public class RestCRUD {
     }
     new RestCRUD().run();
   }
-  
+
+  class HandlerPerson implements HttpHandler {
+
+    PersonFacade facade = new PersonFacade(true);
+
+    @Override
+    public void handle(HttpExchange he) throws IOException {
+      String response = "";
+      int status = 200;
+      String method = he.getRequestMethod().toUpperCase();
+      switch (method) {
+        case "GET":
+          try {
+            String path = he.getRequestURI().getPath();
+            int lastIndex = path.lastIndexOf("/");
+            if (lastIndex > 0) {  //person/id
+              String idStr = path.substring(lastIndex + 1);
+              int id = Integer.parseInt(idStr);
+              response = facade.getPerson(id);
+            } else { // person
+              response = facade.getPersons();
+            }
+          } catch (NumberFormatException nfe) {
+            response = "Id is not a number";
+            status = 404;
+          } catch (NotFoundException nfe) {
+            response = nfe.getMessage();
+            status = 404;
+          }
+          break;
+        case "POST":
+          InputStreamReader isr = new InputStreamReader(he.getRequestBody(), "utf-8");
+          BufferedReader br = new BufferedReader(isr);
+          String jsonQuery = br.readLine();
+          Person p = facade.addPerson(jsonQuery);
+          response = new Gson().toJson(p);
+          break;
+        case "PUT":
+          break;
+        case "DELETE":
+          break;
+      }
+      he.getResponseHeaders().add("Content-Type", "application/json");
+      he.sendResponseHeaders(status, 0);
+      try (OutputStream os = he.getResponseBody()) {
+        os.write(response.getBytes());
+      }
+    }
+  }
+
   class HandlerFileServer implements HttpHandler {
 
     @Override
