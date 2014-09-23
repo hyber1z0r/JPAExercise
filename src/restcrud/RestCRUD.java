@@ -86,11 +86,28 @@ public class RestCRUD {
           }
           break;
         case "POST":
+          try{
           InputStreamReader isr = new InputStreamReader(he.getRequestBody(), "utf-8");
           BufferedReader br = new BufferedReader(isr);
           String jsonQuery = br.readLine();
+          if(jsonQuery.contains("<") || jsonQuery.contains(">")){
+            //Simple anti-Martin check :-)
+            throw new IllegalArgumentException("Illegal characters in input");
+          }
           Person p = facade.addPerson(jsonQuery);
+          if(p.getPhone().length() >50 || p.getfName().length() > 50 || p.getlName().length()>70){
+            //Simple anti-Martin check :-)
+            throw new IllegalArgumentException("Input contains to many characters");
+          }
           response = new Gson().toJson(p);
+          }catch(IllegalArgumentException iae){
+            status = 400;
+            response = iae.getMessage();
+          }
+          catch(IOException e){
+            status = 500;
+            response = "Internal Server Problem";
+          }
           break;
         case "PUT":
           break;
