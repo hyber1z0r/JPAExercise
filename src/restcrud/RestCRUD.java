@@ -27,6 +27,7 @@ public class RestCRUD {
   static String publicFolder = "src/htmlFiles/";
   static String startFile = "index.html";
   static String filesUri = "/pages";
+  private static final boolean DEVELOPMENT_MODE = true;
 
   public void run() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(ip, port), 0);
@@ -50,7 +51,14 @@ public class RestCRUD {
 
   class HandlerPerson implements HttpHandler {
 
-    PersonFacade facade = new PersonFacade(true);
+    PersonFacade facade;
+
+    public HandlerPerson() {
+      facade = PersonFacade.getFacade(false);
+      if (DEVELOPMENT_MODE) {
+        facade.createTestData();
+      }
+    }
 
     @Override
     public void handle(HttpExchange he) throws IOException {
@@ -87,6 +95,26 @@ public class RestCRUD {
         case "PUT":
           break;
         case "DELETE":
+          try{
+          String path = he.getRequestURI().getPath();
+          int lastIndex = path.lastIndexOf("/");
+          if (lastIndex > 0) {  //person/id
+            int id = Integer.parseInt(path.substring(lastIndex+1));
+            Person pDeleted = facade.deletePerson(id);
+            response = new Gson().toJson(pDeleted);
+          }
+          else{
+            status = 400;
+            response = "<h1>Bad Request</h1>No id supplied with request";
+          }
+          }catch(NotFoundException nfe){
+            status = 404;
+            response = nfe.getMessage();
+          }
+          catch (NumberFormatException nfe) {
+            response = "Id is not a number";
+            status = 404;
+          } 
           break;
       }
       he.getResponseHeaders().add("Content-Type", "application/json");
@@ -142,6 +170,8 @@ public class RestCRUD {
           break;
         case ".png":
           mime = "image/png";
+        case ".css":
+          mime = "text/css";
           break;
         case ".js":
           mime = "text/javascript";

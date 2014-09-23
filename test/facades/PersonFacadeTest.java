@@ -19,70 +19,65 @@ public class PersonFacadeTest {
 
   @Before
   public void x() {
-    facade = new PersonFacade();
+    //true will create a new facade instance for each test case
+    facade = PersonFacade.getFacade(true);
   }
 
   @Test
   public void testAddPerson() throws NotFoundException {
-    Person p = new Person("aaa", "bbb", "ccc");
-    String personAsJson = gson.toJson(p);
-    Person person = facade.addPerson(personAsJson);
+    Person person = facade.addPerson(gson.toJson(new Person("bbb", "bbb", "bbb")));
+    String expectedJsonString = gson.toJson(person);
     String actual = facade.getPerson(person.getId());
-    assertEquals(personAsJson, actual);
+    assertEquals(expectedJsonString, actual);
   }
-
-  @Test
-  public void testDeletePerson() {
-    System.out.println("deletePerson");
-    int id = 0;
-    PersonFacade instance = new PersonFacade();
-    Person expResult = null;
-    Person result = instance.deletePerson(id);
-    assertEquals(expResult, result);
-    fail("The test case is a prototype.");
-  }
-
+  
   @Test
   public void testGetPerson() throws Exception {
-    Person p = new Person("aaa", "bbb", "ccc");
-    String personAsJson = gson.toJson(p);
-    Person person = facade.addPerson(personAsJson);
-    String actual = facade.getPerson(person.getId());
-    assertEquals(personAsJson, actual);
+    testAddPerson();
+  }
+  
+    @Test
+  public void testGetPersons() {
+    Person p = new Person("aaa", "aaa", "aaa");
+    Person person1 = facade.addPerson(gson.toJson(p));
+    Person p2 = new Person("bbb", "bbb", "bbb");
+    Person person2 = facade.addPerson(gson.toJson(p2));
+    
+    //Make the Expected String
+    Map<Integer,Person> test = new HashMap();
+    test.put(person1.getId(),person1);
+    test.put(person2.getId(),person2);
+    String expected = gson.toJson(test.values());
+    String result = facade.getPersons();
+    assertEquals(expected,result);
+  }
+  
+
+  @Test(expected = NotFoundException.class)
+  public void testDeletePerson() throws NotFoundException {
+    Person person = facade.addPerson(gson.toJson(new Person("bbb", "bbb", "bbb")));
+    facade.deletePerson(person.getId());
+    facade.getPerson(person.getId());
+  
   }
   
   @Test(expected = NotFoundException.class)
     public void testGetNonExistingPerson() throws Exception {
     facade.getPerson(5);
-    
   }
 
-  @Test
-  public void testGetPersons() {
-    Person p = new Person("aaa", "bbb", "ccc");
-    Person person1 = facade.addPerson(gson.toJson(p));
-    Person p2 = new Person("bbb", "bbb", "bbb");
-    Person person2 = facade.addPerson(gson.toJson(p2));
-    
-    Map<Integer,Person> test = new HashMap();
-    test.put(person1.getId(),person1);
-    test.put(person2.getId(),person2);
-    String expected = gson.toJson(test.values());
-    
-    String result = facade.getPersons();
-    assertEquals(expected,result);
 
-  }
 
-  @Test
-  public void testEditPerson() {
-    System.out.println("editPerson");
-    String json = "";
-    PersonFacade instance = new PersonFacade();
-    Person expResult = null;
-    Person result = instance.editPerson(json);
-    assertEquals(expResult, result);
-    fail("The test case is a prototype.");
+  @Test()
+  public void testEditPerson() throws NotFoundException{
+    Person person = facade.addPerson(gson.toJson(new Person("aaa", "bbb", "ccc")));
+    String original = gson.toJson(person);
+    String changed = original.replace("aaa", "abc");
+    String oldValue = gson.toJson(facade.editPerson(changed));
+    assertEquals(original, oldValue);
+    String newValue = facade.getPerson(person.getId());
+    assertEquals(changed, newValue);
+   
   }
 
 }
