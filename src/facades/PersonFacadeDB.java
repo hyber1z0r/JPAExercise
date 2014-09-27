@@ -98,17 +98,13 @@ public class PersonFacadeDB implements IPersonFacade {
     @Override
     public Person editPerson(String json) throws NotFoundException {
         Person newValue = gson.fromJson(json, Person.class);
-        System.out.println("CHANGED/NEW VALUE: " + newValue.getfName());
         Person oldValue = em.find(Person.class, newValue.getId());
-        System.out.println("THE ORIGINAL VALUE THAT SHOULD BE RETURNED: " + oldValue.getfName());
         if (oldValue == null) {
             throw new NotFoundException("No person exists for the given id");
         }
         em.getTransaction().begin();
         try {
             em.merge(newValue);
-            System.out.println("After merge (the original: " + oldValue.getfName());
-            System.out.println("After merge (new val: " + newValue.getfName());
             em.getTransaction().commit();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -121,15 +117,11 @@ public class PersonFacadeDB implements IPersonFacade {
     public void clearTablesForTesting() {
         try {
             em.getTransaction().begin();
-
             Query q3 = em.createNativeQuery("DELETE FROM PERSON");
-
             q3.executeUpdate();
-
             em.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

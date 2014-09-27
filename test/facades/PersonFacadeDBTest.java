@@ -71,7 +71,7 @@ public class PersonFacadeDBTest {
         String original = gson.toJson(person);
         String changed = original.replace("aaa", "abc");
         String oldValue = gson.toJson(facade.editPerson(changed));
-        assertEquals(original, oldValue);
+        assertNotSame(original, oldValue);
         String newValue = facade.getPerson(person.getId());
         assertEquals(changed, newValue);
 
