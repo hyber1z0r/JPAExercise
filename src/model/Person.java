@@ -1,56 +1,98 @@
 package model;
 
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
+
 /**
- * @author Lars
+ *
+ * @author jakobgaardandersen
  */
-public class Person {
-  String fName;
-  String lName;
-  String phone;
-  int id;
+@Entity
+@NamedQueries({
+    @NamedQuery(name = "Person.findAll", query = "SELECT p FROM Person p")
+})
+public class Person implements Serializable {
 
-  public int getId() {
-    return id;
-  }
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "s1")
+    @SequenceGenerator(name = "s1",
+                       sequenceName = "PERSON_SEQ",
+                       allocationSize = 1,
+                       initialValue = 1)
+    private int id;
 
-  public void setId(int id) {
-    this.id = id;
-  }
+    private String fName;
+    private String lName;
+    private String phone;
 
-  public Person(String fName, String lName, String phone) {
-    this.fName = fName;
-    this.lName = lName;
-    this.phone = phone;
-  }
+    public Person() {
+    }
 
-  public String getfName() {
-    return fName;
-  }
+    public Person(String fName, String lName, String phone) {
+        this.fName = fName;
+        this.lName = lName;
+        this.phone = phone;
+    }
 
-  public void setfName(String fName) {
-    this.fName = fName;
-  }
+    public int getId() {
+        return id;
+    }
 
-  public String getlName() {
-    return lName;
-  }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-  public void setlName(String lName) {
-    this.lName = lName;
-  }
+    public String getfName() {
+        return fName;
+    }
 
-  public String getPhone() {
-    return phone;
-  }
+    public void setfName(String fName) {
+        this.fName = fName;
+    }
 
-  public void setPhone(String phone) {
-    this.phone = phone;
-  }
+    public String getlName() {
+        return lName;
+    }
 
-  @Override
-  public String toString() {
-    return "Person{" + "fName=" + fName + ", lName=" + lName + ", phone=" + phone + ", id=" + id + '}';
-  }
-  
-  
+    public void setlName(String lName) {
+        this.lName = lName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 71 * hash + this.id;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Person other = (Person) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
 }

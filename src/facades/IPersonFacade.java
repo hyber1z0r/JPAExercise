@@ -4,7 +4,7 @@ import exceptions.NotFoundException;
 import model.Person;
 
 /**
- * @author Lars
+ * @author jakobgaardandersen
  */
 public interface IPersonFacade {
   public Person addPerson(String json);  

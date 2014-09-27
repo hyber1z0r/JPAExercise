@@ -9,18 +9,18 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class PersonFacadeTest {
+public class PersonFacadeDBTest {
 
-    PersonFacade facade;
+    PersonFacadeDB facade = PersonFacadeDB.getFacade();
     Gson gson = new Gson();
 
-    public PersonFacadeTest() {
+    public PersonFacadeDBTest() {
     }
 
     @Before
-    public void x() {
+    public void before() {
         //true will create a new facade instance for each test case
-        facade = PersonFacade.getFacade(true);
+        facade.clearTablesForTesting();
     }
 
     @Test

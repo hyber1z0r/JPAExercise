@@ -1,16 +1,12 @@
-/*
- */
-
 package exceptions;
 
 /**
- * @author Lars Mortensen
+ * @author jakobgaardandersen
  */
-public class NotFoundException extends Exception{
+public class NotFoundException extends Exception {
 
-  public NotFoundException(String message) {
-    super(message);
-  }
-  
+    public NotFoundException(String message) {
+        super(message);
+    }
 
 }
